@@ -1,7 +1,6 @@
 package http09
 
 import (
-	"crypto/tls"
 	"fmt"
 	"io"
 	"net"
@@ -9,8 +8,10 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/quic-go/quic-go"
-	"github.com/quic-go/quic-go/internal/testdata"
+	tls "github.com/Psiphon-Labs/psiphon-tls"
+
+	"github.com/Psiphon-Labs/quic-go"
+	"github.com/Psiphon-Labs/quic-go/internal/testdata"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -29,13 +30,16 @@ var _ = Describe("HTTP 0.9 integration tests", func() {
 
 	BeforeEach(func() {
 		server = &Server{
-			Server: &http.Server{TLSConfig: testdata.GetTLSConfig()},
+			Server: &http.Server{
+				// [Psiphon]
+				TLSConfig: nil,
+			},
 		}
 		done = make(chan struct{})
 		go func() {
 			defer GinkgoRecover()
 			defer close(done)
-			_ = server.ListenAndServe()
+			_ = server.ListenAndServe(testdata.GetTLSConfig())
 		}()
 		var ln *quic.EarlyListener
 		Eventually(func() *quic.EarlyListener {

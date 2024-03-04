@@ -13,8 +13,8 @@ import (
 	reflect "reflect"
 	time "time"
 
-	protocol "github.com/quic-go/quic-go/internal/protocol"
-	qerr "github.com/quic-go/quic-go/internal/qerr"
+	protocol "github.com/Psiphon-Labs/quic-go/internal/protocol"
+	qerr "github.com/Psiphon-Labs/quic-go/internal/qerr"
 	gomock "go.uber.org/mock/gomock"
 )
 

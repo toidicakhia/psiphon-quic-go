@@ -1,10 +1,11 @@
 package handshake
 
 import (
-	"crypto/tls"
 	"encoding/hex"
 	"strings"
 	"testing"
+
+	tls "github.com/Psiphon-Labs/psiphon-tls"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

@@ -2,12 +2,13 @@ package self_test
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
 	"net"
 	"time"
 
-	"github.com/quic-go/quic-go"
+	tls "github.com/Psiphon-Labs/psiphon-tls"
+
+	"github.com/Psiphon-Labs/quic-go"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

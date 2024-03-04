@@ -1,18 +1,19 @@
 package main
 
 import (
-	"crypto/tls"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"os"
 
-	"github.com/quic-go/quic-go"
-	"github.com/quic-go/quic-go/http3"
-	"github.com/quic-go/quic-go/internal/qtls"
-	"github.com/quic-go/quic-go/interop/http09"
-	"github.com/quic-go/quic-go/interop/utils"
+	tls "github.com/Psiphon-Labs/psiphon-tls"
+
+	"github.com/Psiphon-Labs/quic-go"
+	"github.com/Psiphon-Labs/quic-go/http3"
+	"github.com/Psiphon-Labs/quic-go/internal/qtls"
+	"github.com/Psiphon-Labs/quic-go/interop/http09"
+	"github.com/Psiphon-Labs/quic-go/interop/utils"
 )
 
 var tlsConf *tls.Config
@@ -75,13 +76,22 @@ func main() {
 func runHTTP09Server(quicConf *quic.Config) error {
 	server := http09.Server{
 		Server: &http.Server{
-			Addr:      ":443",
-			TLSConfig: tlsConf,
+			Addr: ":443",
 		},
 		QuicConfig: quicConf,
 	}
 	http.DefaultServeMux.Handle("/", http.FileServer(http.Dir("/www")))
-	return server.ListenAndServe()
+
+	// [Psiphon]
+	ln, err := net.Listen("tcp", server.Addr)
+	if err != nil {
+		return err
+	}
+
+	defer ln.Close()
+
+	tl := tls.NewListener(ln, tlsConf)
+	return server.Serve(tl)
 }
 
 func runHTTP3Server(quicConf *quic.Config) error {

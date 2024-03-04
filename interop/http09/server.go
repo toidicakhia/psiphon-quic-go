@@ -12,7 +12,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/quic-go/quic-go"
+	tls "github.com/Psiphon-Labs/psiphon-tls"
+	"github.com/Psiphon-Labs/quic-go"
 )
 
 const h09alpn = "hq-interop"
@@ -52,7 +53,7 @@ func (s *Server) Close() error {
 }
 
 // ListenAndServe listens and serves HTTP/0.9 over QUIC.
-func (s *Server) ListenAndServe() error {
+func (s *Server) ListenAndServe(config *tls.Config) error {
 	if s.Server == nil {
 		return errors.New("use of http3.Server without http.Server")
 	}
@@ -66,7 +67,7 @@ func (s *Server) ListenAndServe() error {
 		return err
 	}
 
-	tlsConf := s.TLSConfig.Clone()
+	tlsConf := config.Clone()
 	tlsConf.NextProtos = []string{h09alpn}
 	ln, err := quic.ListenEarly(conn, tlsConf, s.QuicConfig)
 	if err != nil {

@@ -2,7 +2,6 @@ package http3
 
 import (
 	"context"
-	"crypto/tls"
 	"errors"
 	"fmt"
 	"io"
@@ -12,9 +11,11 @@ import (
 	"sync"
 	"sync/atomic"
 
+	tls "github.com/Psiphon-Labs/psiphon-tls"
+
 	"golang.org/x/net/http/httpguts"
 
-	"github.com/quic-go/quic-go"
+	"github.com/Psiphon-Labs/quic-go"
 )
 
 type roundTripCloser interface {

@@ -11,9 +11,9 @@ package quic
 import (
 	reflect "reflect"
 
-	ackhandler "github.com/quic-go/quic-go/internal/ackhandler"
-	protocol "github.com/quic-go/quic-go/internal/protocol"
-	qerr "github.com/quic-go/quic-go/internal/qerr"
+	ackhandler "github.com/Psiphon-Labs/quic-go/internal/ackhandler"
+	protocol "github.com/Psiphon-Labs/quic-go/internal/protocol"
+	qerr "github.com/Psiphon-Labs/quic-go/internal/qerr"
 	gomock "go.uber.org/mock/gomock"
 )
 

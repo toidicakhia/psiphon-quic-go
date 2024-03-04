@@ -2,7 +2,6 @@ package http09
 
 import (
 	"context"
-	"crypto/tls"
 	"errors"
 	"io"
 	"log"
@@ -11,9 +10,11 @@ import (
 	"strings"
 	"sync"
 
+	tls "github.com/Psiphon-Labs/psiphon-tls"
+
 	"golang.org/x/net/idna"
 
-	"github.com/quic-go/quic-go"
+	"github.com/Psiphon-Labs/quic-go"
 )
 
 // MethodGet0RTT allows a GET request to be sent using 0-RTT.

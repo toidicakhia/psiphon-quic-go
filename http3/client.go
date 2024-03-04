@@ -2,7 +2,6 @@ package http3
 
 import (
 	"context"
-	"crypto/tls"
 	"errors"
 	"fmt"
 	"io"
@@ -13,10 +12,12 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/quic-go/quic-go"
-	"github.com/quic-go/quic-go/internal/protocol"
-	"github.com/quic-go/quic-go/internal/utils"
-	"github.com/quic-go/quic-go/quicvarint"
+	tls "github.com/Psiphon-Labs/psiphon-tls"
+
+	"github.com/Psiphon-Labs/quic-go"
+	"github.com/Psiphon-Labs/quic-go/internal/protocol"
+	"github.com/Psiphon-Labs/quic-go/internal/utils"
+	"github.com/Psiphon-Labs/quic-go/quicvarint"
 
 	"github.com/quic-go/qpack"
 )
@@ -433,7 +434,10 @@ func (c *client) doRequest(req *http.Request, conn quic.EarlyConnection, str qui
 		return nil, newStreamError(ErrCodeMessageError, err)
 	}
 	connState := conn.ConnectionState().TLS
-	res.TLS = &connState
+
+	// [Psiphon]
+	res.TLS = tls.UnsafeFromConnectionState(&connState)
+
 	res.Request = req
 	// Check that the server doesn't send more data in DATA frames than indicated by the Content-Length header (if set).
 	// See section 4.1.2 of RFC 9114.

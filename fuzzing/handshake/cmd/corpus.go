@@ -1,17 +1,18 @@
 package main
 
 import (
-	"crypto/tls"
 	"log"
 	"net"
 
-	fuzzhandshake "github.com/quic-go/quic-go/fuzzing/handshake"
-	"github.com/quic-go/quic-go/fuzzing/internal/helper"
-	"github.com/quic-go/quic-go/internal/handshake"
-	"github.com/quic-go/quic-go/internal/protocol"
-	"github.com/quic-go/quic-go/internal/testdata"
-	"github.com/quic-go/quic-go/internal/utils"
-	"github.com/quic-go/quic-go/internal/wire"
+	tls "github.com/Psiphon-Labs/psiphon-tls"
+
+	fuzzhandshake "github.com/Psiphon-Labs/quic-go/fuzzing/handshake"
+	"github.com/Psiphon-Labs/quic-go/fuzzing/internal/helper"
+	"github.com/Psiphon-Labs/quic-go/internal/handshake"
+	"github.com/Psiphon-Labs/quic-go/internal/protocol"
+	"github.com/Psiphon-Labs/quic-go/internal/testdata"
+	"github.com/Psiphon-Labs/quic-go/internal/utils"
+	"github.com/Psiphon-Labs/quic-go/internal/wire"
 )
 
 const alpn = "fuzz"

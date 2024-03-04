@@ -1,9 +1,7 @@
-//go:build go1.21
-
 package qtls
 
 import (
-	"crypto/tls"
+	tls "github.com/Psiphon-Labs/psiphon-tls"
 )
 
 type clientSessionCache struct {
