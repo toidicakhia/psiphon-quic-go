@@ -2,10 +2,9 @@ module github.com/Psiphon-Labs/quic-go
 
 go 1.21
 
-replace github.com/Psiphon-Labs/psiphon-tls => ../psiphon-tls
-
 require (
-	github.com/Psiphon-Labs/psiphon-tls v0.0.0-00010101000000-000000000000
+	github.com/Psiphon-Labs/psiphon-tls v0.0.0-20240305020009-09f917290799
+	github.com/Psiphon-Labs/psiphon-tunnel-core v2.0.28+incompatible
 	github.com/francoispqt/gojay v1.2.13
 	github.com/onsi/ginkgo/v2 v2.9.5
 	github.com/onsi/gomega v1.27.6
@@ -19,12 +18,10 @@ require (
 )
 
 require (
-	github.com/Psiphon-Labs/psiphon-tunnel-core v2.0.28+incompatible // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/pprof v0.0.0-20210407192527-94a9f03dee38 // indirect
-	golang.org/x/mod v0.11.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/tools v0.9.1 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect

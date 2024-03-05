@@ -3,10 +3,20 @@ package utils
 import (
 	"math"
 	"time"
+
+	"golang.org/x/exp/constraints"
 )
 
 // InfDuration is a duration of infinite length
 const InfDuration = time.Duration(math.MaxInt64)
+
+// [Psiphon]
+func Min[T constraints.Ordered](a, b T) T {
+	if a < b {
+		return a
+	}
+	return b
+}
 
 // MinNonZeroDuration return the minimum duration that's not zero.
 func MinNonZeroDuration(a, b time.Duration) time.Duration {

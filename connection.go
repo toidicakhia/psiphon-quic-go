@@ -274,9 +274,19 @@ var newConnection = func(
 	)
 	s.preSetup()
 	s.ctx, s.ctxCancel = context.WithCancelCause(context.WithValue(context.Background(), ConnectionTracingKey, tracingID))
+
+	// [Psiphon]
+	maxPacketSizeAdjustment := 0
+	if conf.ServerMaxPacketSizeAdjustment != nil {
+		maxPacketSizeAdjustment = conf.ServerMaxPacketSizeAdjustment(s.RemoteAddr())
+	}
+
 	s.sentPacketHandler, s.receivedPacketHandler = ackhandler.NewAckHandler(
 		0,
-		getMaxPacketSize(s.conn.RemoteAddr()),
+
+		// [Psiphon]
+		getMaxPacketSize(s.conn.RemoteAddr(), maxPacketSizeAdjustment),
+
 		s.rttStats,
 		clientAddressValidated,
 		s.conn.capabilities().ECN,
@@ -284,7 +294,15 @@ var newConnection = func(
 		s.tracer,
 		s.logger,
 	)
-	s.mtuDiscoverer = newMTUDiscoverer(s.rttStats, getMaxPacketSize(s.conn.RemoteAddr()), s.sentPacketHandler.SetMaxDatagramSize)
+
+	s.mtuDiscoverer = newMTUDiscoverer(
+		s.rttStats,
+
+		// [Psiphon]
+		getMaxPacketSize(s.conn.RemoteAddr(), maxPacketSizeAdjustment),
+
+		s.sentPacketHandler.SetMaxDatagramSize)
+
 	params := &wire.TransportParameters{
 		InitialMaxStreamDataBidiLocal:   protocol.ByteCount(s.config.InitialStreamReceiveWindow),
 		InitialMaxStreamDataBidiRemote:  protocol.ByteCount(s.config.InitialStreamReceiveWindow),
@@ -385,7 +403,10 @@ var newClientConnection = func(
 	s.ctx, s.ctxCancel = context.WithCancelCause(context.WithValue(context.Background(), ConnectionTracingKey, tracingID))
 	s.sentPacketHandler, s.receivedPacketHandler = ackhandler.NewAckHandler(
 		initialPacketNumber,
-		getMaxPacketSize(s.conn.RemoteAddr()),
+
+		// [Psiphon]
+		getMaxPacketSize(s.conn.RemoteAddr(), conf.ClientMaxPacketSizeAdjustment),
+
 		s.rttStats,
 		false, // has no effect
 		s.conn.capabilities().ECN,
@@ -393,7 +414,13 @@ var newClientConnection = func(
 		s.tracer,
 		s.logger,
 	)
-	s.mtuDiscoverer = newMTUDiscoverer(s.rttStats, getMaxPacketSize(s.conn.RemoteAddr()), s.sentPacketHandler.SetMaxDatagramSize)
+	s.mtuDiscoverer = newMTUDiscoverer(
+		s.rttStats,
+
+		// [Psiphon]
+		getMaxPacketSize(s.conn.RemoteAddr(), conf.ClientMaxPacketSizeAdjustment),
+
+		s.sentPacketHandler.SetMaxDatagramSize)
 	oneRTTStream := newCryptoStream()
 	params := &wire.TransportParameters{
 		InitialMaxStreamDataBidiRemote: protocol.ByteCount(s.config.InitialStreamReceiveWindow),
@@ -426,6 +453,11 @@ var newClientConnection = func(
 		destConnID,
 		params,
 		tlsConf,
+
+		// [Psiphon]
+		conf.ClientHelloSeed,
+		conf.GetClientHelloRandom,
+
 		enable0RTT,
 		s.rttStats,
 		tracer,
@@ -776,12 +808,28 @@ func (s *connection) handleHandshakeConfirmed() error {
 	s.sentPacketHandler.SetHandshakeConfirmed()
 	s.cryptoStreamHandler.SetHandshakeConfirmed()
 
+	// [Psiphon]
+	// Adjust the max packet size to allow for obfuscation overhead.
+	maxPacketSizeAdjustment := 0
+	if s.config.ServerMaxPacketSizeAdjustment != nil {
+		maxPacketSizeAdjustment = s.config.ServerMaxPacketSizeAdjustment(s.conn.RemoteAddr())
+	} else {
+		maxPacketSizeAdjustment = s.config.ClientMaxPacketSizeAdjustment
+	}
+
 	if !s.config.DisablePathMTUDiscovery && s.conn.capabilities().DF {
 		maxPacketSize := s.peerParams.MaxUDPPayloadSize
 		if maxPacketSize == 0 {
 			maxPacketSize = protocol.MaxByteCount
 		}
-		s.mtuDiscoverer.Start(min(maxPacketSize, protocol.MaxPacketBufferSize))
+		maxPacketSize = utils.Min(maxPacketSize, protocol.MaxPacketBufferSize)
+
+		// [Psiphon]
+		if maxPacketSize > protocol.ByteCount(maxPacketSizeAdjustment) {
+			maxPacketSize -= protocol.ByteCount(maxPacketSizeAdjustment)
+		}
+
+		s.mtuDiscoverer.Start(maxPacketSize)
 	}
 	return nil
 }

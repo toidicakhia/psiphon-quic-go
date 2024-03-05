@@ -14,6 +14,7 @@ import (
 	"github.com/Psiphon-Labs/quic-go/internal/handshake"
 	"github.com/Psiphon-Labs/quic-go/internal/protocol"
 	"github.com/Psiphon-Labs/quic-go/internal/qerr"
+	"github.com/Psiphon-Labs/quic-go/internal/qtls"
 	"github.com/Psiphon-Labs/quic-go/internal/utils"
 	"github.com/Psiphon-Labs/quic-go/internal/wire"
 	"github.com/Psiphon-Labs/quic-go/logging"
@@ -424,7 +425,16 @@ func (s *baseServer) handlePacketImpl(p receivedPacket) bool /* is the buffer st
 		s.logger.Debugf("Error parsing packet: %s", err)
 		return false
 	}
-	if hdr.Type == protocol.PacketTypeInitial && p.Size() < protocol.MinInitialPacketSize {
+
+	// [Psiphon]
+	// To accomodate additional messages, obfuscated QUIC packets may reserve
+	// significant space in the Initial packet and send less that 1200 QUIC
+	// bytes. In this configuration, the obfuscation layer enforces the
+	// anti-amplification 1200 byte rule, but it must be disabled here.
+	isObfuscated := s.config.ServerMaxPacketSizeAdjustment != nil && s.config.ServerMaxPacketSizeAdjustment(p.remoteAddr) > 0
+
+	if !isObfuscated &&
+		hdr.Type == protocol.PacketTypeInitial && p.Size() < protocol.MinInitialPacketSize {
 		s.logger.Debugf("Dropping a packet that is too small to be a valid Initial (%d bytes)", p.Size())
 		if s.tracer != nil && s.tracer.DroppedPacket != nil {
 			s.tracer.DroppedPacket(p.remoteAddr, logging.PacketTypeInitial, p.Size(), logging.PacketDropUnexpectedPacket)
@@ -521,6 +531,139 @@ func (s *baseServer) cleanupZeroRTTQueues(now time.Time) {
 	s.nextZeroRTTCleanup = nextCleanup
 }
 
+// [Psiphon]
+type stubCryptoSetup struct {
+	initialOpener handshake.LongHeaderOpener
+}
+
+var errNotSupported = errors.New("not supported")
+
+func (s *stubCryptoSetup) StartHandshake() error {
+	return nil
+}
+
+func (s *stubCryptoSetup) Close() error {
+	return errNotSupported
+}
+
+func (s *stubCryptoSetup) ChangeConnectionID(protocol.ConnectionID) {
+}
+
+func (s *stubCryptoSetup) GetSessionTicket() ([]byte, error) {
+	return nil, errNotSupported
+}
+
+func (s *stubCryptoSetup) HandleMessage([]byte, protocol.EncryptionLevel) error {
+	return nil
+}
+
+func (s *stubCryptoSetup) NextEvent() handshake.Event {
+	return handshake.Event{}
+}
+
+func (s *stubCryptoSetup) SetLargest1RTTAcked(protocol.PacketNumber) error {
+	return errNotSupported
+}
+
+func (s *stubCryptoSetup) DiscardInitialKeys() {
+}
+
+func (s *stubCryptoSetup) SetHandshakeConfirmed() {
+}
+
+func (s *stubCryptoSetup) ConnectionState() handshake.ConnectionState {
+	return handshake.ConnectionState{}
+}
+
+func (s *stubCryptoSetup) GetInitialOpener() (handshake.LongHeaderOpener, error) {
+	return s.initialOpener, nil
+}
+
+func (s *stubCryptoSetup) GetHandshakeOpener() (handshake.LongHeaderOpener, error) {
+	return nil, errNotSupported
+}
+
+func (s *stubCryptoSetup) Get0RTTOpener() (handshake.LongHeaderOpener, error) {
+	return nil, errNotSupported
+}
+
+func (s *stubCryptoSetup) Get1RTTOpener() (handshake.ShortHeaderOpener, error) {
+	return nil, errNotSupported
+}
+
+func (s *stubCryptoSetup) GetInitialSealer() (handshake.LongHeaderSealer, error) {
+	return nil, errNotSupported
+}
+
+func (s *stubCryptoSetup) GetHandshakeSealer() (handshake.LongHeaderSealer, error) {
+	return nil, errNotSupported
+}
+
+func (s *stubCryptoSetup) Get0RTTSealer() (handshake.LongHeaderSealer, error) {
+	return nil, errNotSupported
+}
+
+func (s *stubCryptoSetup) Get1RTTSealer() (handshake.ShortHeaderSealer, error) {
+	return nil, errNotSupported
+}
+
+// [Psiphon]
+// verifyClientHelloRandom unpacks an Initial packet, extracts the CRYPTO
+// frame, and calls Config.VerifyClientHelloRandom.
+func (s *baseServer) verifyClientHelloRandom(p receivedPacket, hdr *wire.Header) error {
+
+	// TODO: support QUICv2
+	versionNumber := protocol.Version1
+
+	_, initialOpener := handshake.NewInitialAEAD(
+		hdr.DestConnectionID, protocol.PerspectiveServer, versionNumber)
+
+	cs := &stubCryptoSetup{
+		initialOpener: initialOpener,
+	}
+
+	// Make a copy of the packet data since this unpacking modifies it and the
+	// original packet data must be retained for subsequent processing.
+	data := append([]byte(nil), p.data...)
+
+	unpacker := newPacketUnpacker(cs, 0)
+	unpacked, err := unpacker.UnpackLongHeader(hdr, p.rcvTime, data, versionNumber)
+	if err != nil {
+		return fmt.Errorf("verifyClientHelloRandom: UnpackLongHeader: %w", err)
+	}
+
+	parser := wire.NewFrameParser(s.config.EnableDatagrams)
+
+	d := unpacked.data
+	for len(d) > 0 {
+		l, frame, err := parser.ParseNext(d, protocol.EncryptionInitial, versionNumber)
+		if err != nil {
+			return fmt.Errorf("verifyClientHelloRandom: ParseNext: %w", err)
+		}
+		if frame == nil {
+			return errors.New("verifyClientHelloRandom: missing CRYPTO frame")
+		}
+		d = d[l:]
+		cryptoFrame, ok := frame.(*wire.CryptoFrame)
+		if !ok {
+			continue
+		}
+		if cryptoFrame.Offset != 0 {
+			return errors.New("verifyClientHelloRandom: unexpected CRYPTO frame offset")
+		}
+		random, err := qtls.ReadClientHelloRandom(cryptoFrame.Data)
+		if err != nil {
+			return fmt.Errorf("verifyClientHelloRandom: ReadClientHelloRandom: %w", err)
+		}
+		if !s.config.VerifyClientHelloRandom(p.remoteAddr, random) {
+			return fmt.Errorf("verifyClientHelloRandom: VerifyClientHelloRandom failed")
+		}
+		break
+	}
+
+	return nil
+}
+
 // validateToken returns false if:
 //   - address is invalid
 //   - token is expired
@@ -548,6 +691,16 @@ func (s *baseServer) handleInitialImpl(p receivedPacket, hdr *wire.Header) error
 		}
 		p.buffer.Release()
 		return errors.New("too short connection ID")
+	}
+
+	// [Psiphon]
+	// Drop any Initial packet that fails verifyClientHelloRandom.
+	if s.config.VerifyClientHelloRandom != nil {
+		err := s.verifyClientHelloRandom(p, hdr)
+		if err != nil {
+			p.buffer.Release()
+			return err
+		}
 	}
 
 	// The server queues packets for a while, and we might already have established a connection by now.

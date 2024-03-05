@@ -11,6 +11,7 @@ import (
 	"time"
 
 	tls "github.com/Psiphon-Labs/psiphon-tls"
+	"github.com/Psiphon-Labs/psiphon-tunnel-core/psiphon/common/prng"
 
 	"github.com/Psiphon-Labs/quic-go/internal/protocol"
 	"github.com/Psiphon-Labs/quic-go/internal/qerr"
@@ -73,12 +74,27 @@ func NewCryptoSetupClient(
 	connID protocol.ConnectionID,
 	tp *wire.TransportParameters,
 	tlsConf *tls.Config,
+
+	// [Psiphon]
+	clientHelloSeed *prng.Seed,
+	getClientHelloRandom func() ([]byte, error),
+
 	enable0RTT bool,
 	rttStats *utils.RTTStats,
 	tracer *logging.ConnectionTracer,
 	logger utils.Logger,
 	version protocol.VersionNumber,
 ) CryptoSetup {
+
+	// [Psiphon]
+	// Instantiate the PRNG here as it's used in sequence in two places:
+	// TransportParameters.Marshal, for the quic_transport_parameters extension;
+	// and then in qtls.clientHelloMsg.marshal.
+	var clientHelloPRNG *prng.PRNG
+	if clientHelloSeed != nil {
+		clientHelloPRNG = prng.NewPRNGWithSeed(clientHelloSeed)
+	}
+
 	cs := newCryptoSetup(
 		connID,
 		tp,
@@ -91,13 +107,18 @@ func NewCryptoSetupClient(
 
 	tlsConf = tlsConf.Clone()
 	tlsConf.MinVersion = tls.VersionTLS13
+
+	// [Psiphon]
+	tlsConf.ClientHelloPRNG = clientHelloPRNG
+	tlsConf.GetClientHelloRandom = getClientHelloRandom
+
 	quicConf := &tls.QUICConfig{TLSConfig: tlsConf}
 	qtls.SetupConfigForClient(quicConf, cs.marshalDataForSessionState, cs.handleDataFromSessionState)
 	cs.tlsConf = tlsConf
 	cs.allow0RTT = enable0RTT
 
 	cs.conn = tls.QUICClient(quicConf)
-	cs.conn.SetTransportParameters(cs.ourParams.Marshal(protocol.PerspectiveClient))
+	cs.conn.SetTransportParameters(cs.ourParams.Marshal(protocol.PerspectiveClient, clientHelloPRNG))
 
 	return cs
 }
@@ -275,7 +296,7 @@ func (h *cryptoSetup) handleEvent(ev tls.QUICEvent) (done bool, err error) {
 	case tls.QUICTransportParameters:
 		return false, h.handleTransportParameters(ev.Data)
 	case tls.QUICTransportParametersRequired:
-		h.conn.SetTransportParameters(h.ourParams.Marshal(h.perspective))
+		h.conn.SetTransportParameters(h.ourParams.Marshal(h.perspective, nil))
 		return false, nil
 	case tls.QUICRejectedEarlyData:
 		h.rejected0RTT()

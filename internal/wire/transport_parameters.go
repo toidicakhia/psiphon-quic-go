@@ -7,10 +7,15 @@ import (
 	"errors"
 	"fmt"
 	"io"
+
+	// [Psiphon]
+	math_rand "math/rand"
+
 	"net/netip"
 	"sort"
 	"time"
 
+	"github.com/Psiphon-Labs/psiphon-tunnel-core/psiphon/common/prng"
 	"github.com/Psiphon-Labs/quic-go/internal/protocol"
 	"github.com/Psiphon-Labs/quic-go/internal/qerr"
 	"github.com/Psiphon-Labs/quic-go/internal/utils"
@@ -319,7 +324,14 @@ func (p *TransportParameters) readNumericTransportParameter(
 }
 
 // Marshal the transport parameters
-func (p *TransportParameters) Marshal(pers protocol.Perspective) []byte {
+func (p *TransportParameters) Marshal(pers protocol.Perspective, clientHelloPRNG *prng.PRNG) []byte {
+
+	// [Psiphon]
+	// Randomize the quic_transport_parameters Client Hello extension.
+	if pers == protocol.PerspectiveClient && clientHelloPRNG != nil {
+		return p.marshalClientRandomized(clientHelloPRNG)
+	}
+
 	// Typical Transport Parameters consume around 110 bytes, depending on the exact values,
 	// especially the lengths of the Connection IDs.
 	// Allocate 256 bytes, so we won't have to grow the slice in any case.
@@ -359,11 +371,12 @@ func (p *TransportParameters) Marshal(pers protocol.Perspective) []byte {
 	if p.AckDelayExponent != protocol.DefaultAckDelayExponent {
 		b = p.marshalVarintParam(b, ackDelayExponentParameterID, uint64(p.AckDelayExponent))
 	}
-	// disable_active_migration
+	// disable_active_migration (included)
 	if p.DisableActiveMigration {
 		b = quicvarint.Append(b, uint64(disableActiveMigrationParameterID))
 		b = quicvarint.Append(b, 0)
 	}
+	// (not included - server only)
 	if pers == protocol.PerspectiveServer {
 		// stateless_reset_token
 		if p.StatelessResetToken != nil {
@@ -390,30 +403,145 @@ func (p *TransportParameters) Marshal(pers protocol.Perspective) []byte {
 			b = append(b, p.PreferredAddress.StatelessResetToken[:]...)
 		}
 	}
-	// active_connection_id_limit
+	// active_connection_id_limit (included)
 	if p.ActiveConnectionIDLimit != protocol.DefaultActiveConnectionIDLimit {
 		b = p.marshalVarintParam(b, activeConnectionIDLimitParameterID, p.ActiveConnectionIDLimit)
 	}
-	// initial_source_connection_id
+	// initial_source_connection_id (included)
 	b = quicvarint.Append(b, uint64(initialSourceConnectionIDParameterID))
 	b = quicvarint.Append(b, uint64(p.InitialSourceConnectionID.Len()))
 	b = append(b, p.InitialSourceConnectionID.Bytes()...)
-	// retry_source_connection_id
+	// retry_source_connection_id (not included - server only)
 	if pers == protocol.PerspectiveServer && p.RetrySourceConnectionID != nil {
 		b = quicvarint.Append(b, uint64(retrySourceConnectionIDParameterID))
 		b = quicvarint.Append(b, uint64(p.RetrySourceConnectionID.Len()))
 		b = append(b, p.RetrySourceConnectionID.Bytes()...)
 	}
+
+	// (included)
 	if p.MaxDatagramFrameSize != protocol.InvalidByteCount {
 		b = p.marshalVarintParam(b, maxDatagramFrameSizeParameterID, uint64(p.MaxDatagramFrameSize))
 	}
 
+	// (not included - test only)
 	if pers == protocol.PerspectiveClient && len(AdditionalTransportParametersClient) > 0 {
 		for k, v := range AdditionalTransportParametersClient {
 			b = quicvarint.Append(b, k)
 			b = quicvarint.Append(b, uint64(len(v)))
 			b = append(b, v...)
 		}
+	}
+
+	return b
+}
+
+// [Psiphon]
+// marshalClientRandomized is a randomized, client-only variant of Marshal. The original
+// Marshal is retained as-is to ease future merging.
+func (p *TransportParameters) marshalClientRandomized(clientHelloPRNG *prng.PRNG) []byte {
+
+	// Typical Transport Parameters consume around 110 bytes, depending on the exact values,
+	// especially the lengths of the Connection IDs.
+	// Allocate 256 bytes, so we won't have to grow the slice in any case.
+	b := make([]byte, 0, 256)
+
+	marshallers := []func(){
+
+		func() {
+			// add a greased value
+			b = quicvarint.Append(b, uint64(27+31*math_rand.Intn(100)))
+			length := math_rand.Intn(16)
+			b = quicvarint.Append(b, uint64(length))
+			b = b[:len(b)+length]
+			rand.Read(b[len(b)-length:])
+		},
+
+		func() {
+			// initial_max_stream_data_bidi_local
+			b = p.marshalVarintParam(b, initialMaxStreamDataBidiLocalParameterID, uint64(p.InitialMaxStreamDataBidiLocal))
+		},
+
+		func() {
+			// initial_max_stream_data_bidi_remote
+			b = p.marshalVarintParam(b, initialMaxStreamDataBidiRemoteParameterID, uint64(p.InitialMaxStreamDataBidiRemote))
+		},
+
+		func() {
+			// initial_max_stream_data_uni
+			b = p.marshalVarintParam(b, initialMaxStreamDataUniParameterID, uint64(p.InitialMaxStreamDataUni))
+		},
+
+		func() {
+			// initial_max_data
+			b = p.marshalVarintParam(b, initialMaxDataParameterID, uint64(p.InitialMaxData))
+		},
+
+		func() {
+			// initial_max_bidi_streams
+			b = p.marshalVarintParam(b, initialMaxStreamsBidiParameterID, uint64(p.MaxBidiStreamNum))
+		},
+
+		func() {
+			// initial_max_uni_streams
+			b = p.marshalVarintParam(b, initialMaxStreamsUniParameterID, uint64(p.MaxUniStreamNum))
+		},
+
+		func() {
+			// idle_timeout
+			b = p.marshalVarintParam(b, maxIdleTimeoutParameterID, uint64(p.MaxIdleTimeout/time.Millisecond))
+		},
+
+		func() {
+			// max_packet_size
+			b = p.marshalVarintParam(b, maxUDPPayloadSizeParameterID, uint64(protocol.MaxPacketBufferSize))
+		},
+
+		func() {
+			// max_ack_delay
+			// Only send it if is different from the default value.
+			if p.MaxAckDelay != protocol.DefaultMaxAckDelay {
+				b = p.marshalVarintParam(b, maxAckDelayParameterID, uint64(p.MaxAckDelay/time.Millisecond))
+			}
+		},
+
+		func() {
+			// ack_delay_exponent
+			// Only send it if is different from the default value.
+			if p.AckDelayExponent != protocol.DefaultAckDelayExponent {
+				b = p.marshalVarintParam(b, ackDelayExponentParameterID, uint64(p.AckDelayExponent))
+			}
+		},
+
+		func() {
+			// disable_active_migration
+			if p.DisableActiveMigration {
+				b = quicvarint.Append(b, uint64(disableActiveMigrationParameterID))
+				b = quicvarint.Append(b, 0)
+			}
+		},
+
+		func() {
+			// active_connection_id_limit
+			b = p.marshalVarintParam(b, activeConnectionIDLimitParameterID, p.ActiveConnectionIDLimit)
+		},
+
+		func() {
+			// initial_source_connection_id
+			b = quicvarint.Append(b, uint64(initialSourceConnectionIDParameterID))
+			b = quicvarint.Append(b, uint64(p.InitialSourceConnectionID.Len()))
+			b = append(b, p.InitialSourceConnectionID.Bytes()...)
+		},
+
+		func() {
+			if p.MaxDatagramFrameSize != protocol.InvalidByteCount {
+				b = p.marshalVarintParam(b, maxDatagramFrameSizeParameterID, uint64(p.MaxDatagramFrameSize))
+			}
+		},
+	}
+
+	perm := clientHelloPRNG.Perm(len(marshallers))
+	for _, j := range perm {
+		marshallers[j]()
 	}
 
 	return b

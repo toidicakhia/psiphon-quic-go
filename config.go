@@ -125,5 +125,12 @@ func populateConfig(config *Config) *Config {
 		DisablePathMTUDiscovery:        config.DisablePathMTUDiscovery,
 		Allow0RTT:                      config.Allow0RTT,
 		Tracer:                         config.Tracer,
+
+		// [Psiphon]
+		ClientHelloSeed:               config.ClientHelloSeed,
+		GetClientHelloRandom:          config.GetClientHelloRandom,
+		VerifyClientHelloRandom:       config.VerifyClientHelloRandom,
+		ClientMaxPacketSizeAdjustment: config.ClientMaxPacketSizeAdjustment,
+		ServerMaxPacketSizeAdjustment: config.ServerMaxPacketSizeAdjustment,
 	}
 }

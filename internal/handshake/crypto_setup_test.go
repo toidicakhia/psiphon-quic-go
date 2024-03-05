@@ -69,6 +69,11 @@ var _ = Describe("Crypto Setup TLS", func() {
 			protocol.ConnectionID{},
 			&wire.TransportParameters{},
 			tlsConf,
+
+			// [Psiphon]
+			nil,
+			nil,
+
 			false,
 			&utils.RTTStats{},
 			nil,
@@ -268,6 +273,11 @@ var _ = Describe("Crypto Setup TLS", func() {
 				protocol.ConnectionID{},
 				clientTransportParameters,
 				clientConf,
+
+				// [Psiphon]
+				nil,
+				nil,
+
 				enable0RTT,
 				clientRTTStats,
 				nil,
@@ -337,6 +347,11 @@ var _ = Describe("Crypto Setup TLS", func() {
 				protocol.ConnectionID{},
 				cTransportParameters,
 				clientConf,
+
+				// [Psiphon]
+				nil,
+				nil,
+
 				false,
 				&utils.RTTStats{},
 				nil,

@@ -104,7 +104,7 @@ var _ = Describe("Transport Parameters", func() {
 			ActiveConnectionIDLimit:         2 + getRandomValueUpTo(math.MaxInt64-2),
 			MaxDatagramFrameSize:            protocol.ByteCount(getRandomValue()),
 		}
-		data := params.Marshal(protocol.PerspectiveServer)
+		data := params.Marshal(protocol.PerspectiveServer, nil)
 
 		p := &TransportParameters{}
 		Expect(p.Unmarshal(data, protocol.PerspectiveServer)).To(Succeed())
@@ -138,15 +138,15 @@ var _ = Describe("Transport Parameters", func() {
 		result = append(result, []byte("foobar")...)
 
 		params := &TransportParameters{}
-		Expect(bytes.Contains(params.Marshal(protocol.PerspectiveClient), result)).To(BeTrue())
-		Expect(bytes.Contains(params.Marshal(protocol.PerspectiveServer), result)).To(BeFalse())
+		Expect(bytes.Contains(params.Marshal(protocol.PerspectiveClient, nil), result)).To(BeTrue())
+		Expect(bytes.Contains(params.Marshal(protocol.PerspectiveServer, nil), result)).To(BeFalse())
 	})
 
 	It("doesn't marshal a retry_source_connection_id, if no Retry was performed", func() {
 		data := (&TransportParameters{
 			StatelessResetToken:     &protocol.StatelessResetToken{},
 			ActiveConnectionIDLimit: 2,
-		}).Marshal(protocol.PerspectiveServer)
+		}).Marshal(protocol.PerspectiveServer, nil)
 		p := &TransportParameters{}
 		Expect(p.Unmarshal(data, protocol.PerspectiveServer)).To(Succeed())
 		Expect(p.RetrySourceConnectionID).To(BeNil())
@@ -158,7 +158,7 @@ var _ = Describe("Transport Parameters", func() {
 			RetrySourceConnectionID: &rcid,
 			StatelessResetToken:     &protocol.StatelessResetToken{},
 			ActiveConnectionIDLimit: 2,
-		}).Marshal(protocol.PerspectiveServer)
+		}).Marshal(protocol.PerspectiveServer, nil)
 		p := &TransportParameters{}
 		Expect(p.Unmarshal(data, protocol.PerspectiveServer)).To(Succeed())
 		Expect(p.RetrySourceConnectionID).ToNot(BeNil())
@@ -217,7 +217,7 @@ var _ = Describe("Transport Parameters", func() {
 		data := (&TransportParameters{
 			MaxAckDelay:         1 << 14 * time.Millisecond,
 			StatelessResetToken: &protocol.StatelessResetToken{},
-		}).Marshal(protocol.PerspectiveServer)
+		}).Marshal(protocol.PerspectiveServer, nil)
 		p := &TransportParameters{}
 		Expect(p.Unmarshal(data, protocol.PerspectiveServer)).To(MatchError(&qerr.TransportError{
 			ErrorCode:    qerr.TransportParameterError,
@@ -234,12 +234,12 @@ var _ = Describe("Transport Parameters", func() {
 			dataDefault := (&TransportParameters{
 				MaxAckDelay:         protocol.DefaultMaxAckDelay,
 				StatelessResetToken: &protocol.StatelessResetToken{},
-			}).Marshal(protocol.PerspectiveServer)
+			}).Marshal(protocol.PerspectiveServer, nil)
 			defaultLen += len(dataDefault)
 			data := (&TransportParameters{
 				MaxAckDelay:         maxAckDelay,
 				StatelessResetToken: &protocol.StatelessResetToken{},
-			}).Marshal(protocol.PerspectiveServer)
+			}).Marshal(protocol.PerspectiveServer, nil)
 			dataLen += len(data)
 		}
 		entryLen := quicvarint.Len(uint64(ackDelayExponentParameterID)) /* parameter id */ + quicvarint.Len(uint64(quicvarint.Len(uint64(maxAckDelay.Milliseconds())))) /*length */ + quicvarint.Len(uint64(maxAckDelay.Milliseconds())) /* value */
@@ -250,7 +250,7 @@ var _ = Describe("Transport Parameters", func() {
 		data := (&TransportParameters{
 			ActiveConnectionIDLimit: 1,
 			StatelessResetToken:     &protocol.StatelessResetToken{},
-		}).Marshal(protocol.PerspectiveServer)
+		}).Marshal(protocol.PerspectiveServer, nil)
 		p := &TransportParameters{}
 		Expect(p.Unmarshal(data, protocol.PerspectiveServer)).To(MatchError(&qerr.TransportError{
 			ErrorCode:    qerr.TransportParameterError,
@@ -262,7 +262,7 @@ var _ = Describe("Transport Parameters", func() {
 		data := (&TransportParameters{
 			AckDelayExponent:    21,
 			StatelessResetToken: &protocol.StatelessResetToken{},
-		}).Marshal(protocol.PerspectiveServer)
+		}).Marshal(protocol.PerspectiveServer, nil)
 		p := &TransportParameters{}
 		Expect(p.Unmarshal(data, protocol.PerspectiveServer)).To(MatchError(&qerr.TransportError{
 			ErrorCode:    qerr.TransportParameterError,
@@ -278,12 +278,12 @@ var _ = Describe("Transport Parameters", func() {
 			dataDefault := (&TransportParameters{
 				AckDelayExponent:    protocol.DefaultAckDelayExponent,
 				StatelessResetToken: &protocol.StatelessResetToken{},
-			}).Marshal(protocol.PerspectiveServer)
+			}).Marshal(protocol.PerspectiveServer, nil)
 			defaultLen += len(dataDefault)
 			data := (&TransportParameters{
 				AckDelayExponent:    protocol.DefaultAckDelayExponent + 1,
 				StatelessResetToken: &protocol.StatelessResetToken{},
-			}).Marshal(protocol.PerspectiveServer)
+			}).Marshal(protocol.PerspectiveServer, nil)
 			dataLen += len(data)
 		}
 		entryLen := quicvarint.Len(uint64(ackDelayExponentParameterID)) /* parameter id */ + quicvarint.Len(uint64(quicvarint.Len(protocol.DefaultAckDelayExponent+1))) /* length */ + quicvarint.Len(protocol.DefaultAckDelayExponent+1) /* value */
@@ -295,7 +295,7 @@ var _ = Describe("Transport Parameters", func() {
 			AckDelayExponent:        protocol.DefaultAckDelayExponent,
 			StatelessResetToken:     &protocol.StatelessResetToken{},
 			ActiveConnectionIDLimit: protocol.DefaultActiveConnectionIDLimit,
-		}).Marshal(protocol.PerspectiveServer)
+		}).Marshal(protocol.PerspectiveServer, nil)
 		p := &TransportParameters{}
 		Expect(p.Unmarshal(data, protocol.PerspectiveServer)).To(Succeed())
 		Expect(p.AckDelayExponent).To(BeEquivalentTo(protocol.DefaultAckDelayExponent))
@@ -437,7 +437,7 @@ var _ = Describe("Transport Parameters", func() {
 				PreferredAddress:        pa,
 				StatelessResetToken:     &protocol.StatelessResetToken{},
 				ActiveConnectionIDLimit: 2,
-			}).Marshal(protocol.PerspectiveServer)
+			}).Marshal(protocol.PerspectiveServer, nil)
 			p := &TransportParameters{}
 			Expect(p.Unmarshal(data, protocol.PerspectiveServer)).To(Succeed())
 			Expect(p.PreferredAddress.IPv4).To(Equal(pa.IPv4))
@@ -462,7 +462,7 @@ var _ = Describe("Transport Parameters", func() {
 			data := (&TransportParameters{
 				PreferredAddress:    pa,
 				StatelessResetToken: &protocol.StatelessResetToken{},
-			}).Marshal(protocol.PerspectiveServer)
+			}).Marshal(protocol.PerspectiveServer, nil)
 			p := &TransportParameters{}
 			Expect(p.Unmarshal(data, protocol.PerspectiveServer)).To(MatchError(&qerr.TransportError{
 				ErrorCode:    qerr.TransportParameterError,

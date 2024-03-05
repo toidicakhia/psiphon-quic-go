@@ -281,6 +281,9 @@ func runHandshake(runConfig [confLen]byte, messageConfig uint8, clientConf *tls.
 		protocol.ConnectionID{},
 		clientTP,
 		clientConf,
+		// [Psiphon]
+		nil,
+		nil,
 		enable0RTTClient,
 		utils.NewRTTStats(),
 		nil,

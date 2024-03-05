@@ -28,6 +28,11 @@ func main() {
 			RootCAs:            testdata.GetRootCA(),
 			ClientSessionCache: tls.NewLRUClientSessionCache(1),
 		},
+
+		// [Psiphon]
+		nil,
+		nil,
+
 		false,
 		utils.NewRTTStats(),
 		nil,
