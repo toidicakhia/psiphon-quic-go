@@ -8,7 +8,7 @@ import (
 
 	"golang.org/x/exp/rand"
 
-	"github.com/Psiphon-Labs/quic-go/internal/protocol"
+	"github.com/toidicakhia/psiphon-quic-go/internal/protocol"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

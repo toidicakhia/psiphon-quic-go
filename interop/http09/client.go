@@ -10,11 +10,11 @@ import (
 	"strings"
 	"sync"
 
-	tls "github.com/Psiphon-Labs/psiphon-tls"
+	tls "github.com/toidicakhia/psiphon-tls"
 
 	"golang.org/x/net/idna"
 
-	"github.com/Psiphon-Labs/quic-go"
+	quic "github.com/toidicakhia/psiphon-quic-go"
 )
 
 // MethodGet0RTT allows a GET request to be sent using 0-RTT.

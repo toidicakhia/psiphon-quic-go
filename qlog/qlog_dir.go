@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Psiphon-Labs/quic-go/internal/utils"
-	"github.com/Psiphon-Labs/quic-go/logging"
+	"github.com/toidicakhia/psiphon-quic-go/internal/utils"
+	"github.com/toidicakhia/psiphon-quic-go/logging"
 )
 
 // DefaultTracer creates a qlog file in the qlog directory specified by the QLOGDIR environment variable.

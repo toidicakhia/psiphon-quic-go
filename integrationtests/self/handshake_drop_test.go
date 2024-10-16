@@ -10,13 +10,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	tls "github.com/Psiphon-Labs/psiphon-tls"
+	tls "github.com/toidicakhia/psiphon-tls"
 
-	"github.com/Psiphon-Labs/quic-go/quicvarint"
+	"github.com/toidicakhia/psiphon-quic-go/quicvarint"
 
-	"github.com/Psiphon-Labs/quic-go"
-	quicproxy "github.com/Psiphon-Labs/quic-go/integrationtests/tools/proxy"
-	"github.com/Psiphon-Labs/quic-go/internal/wire"
+	quic "github.com/toidicakhia/psiphon-quic-go"
+	quicproxy "github.com/toidicakhia/psiphon-quic-go/integrationtests/tools/proxy"
+	"github.com/toidicakhia/psiphon-quic-go/internal/wire"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

@@ -12,8 +12,8 @@ import (
 	reflect "reflect"
 	time "time"
 
-	protocol "github.com/Psiphon-Labs/quic-go/internal/protocol"
-	wire "github.com/Psiphon-Labs/quic-go/internal/wire"
+	protocol "github.com/toidicakhia/psiphon-quic-go/internal/protocol"
+	wire "github.com/toidicakhia/psiphon-quic-go/internal/wire"
 	gomock "go.uber.org/mock/gomock"
 )
 

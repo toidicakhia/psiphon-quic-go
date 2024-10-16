@@ -3,9 +3,9 @@ package testutils
 import (
 	"fmt"
 
-	"github.com/Psiphon-Labs/quic-go/internal/handshake"
-	"github.com/Psiphon-Labs/quic-go/internal/protocol"
-	"github.com/Psiphon-Labs/quic-go/internal/wire"
+	"github.com/toidicakhia/psiphon-quic-go/internal/handshake"
+	"github.com/toidicakhia/psiphon-quic-go/internal/protocol"
+	"github.com/toidicakhia/psiphon-quic-go/internal/wire"
 )
 
 // Utilities for simulating packet injection and man-in-the-middle (MITM) attacker tests.

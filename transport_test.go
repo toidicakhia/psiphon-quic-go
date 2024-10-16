@@ -9,12 +9,12 @@ import (
 	"syscall"
 	"time"
 
-	tls "github.com/Psiphon-Labs/psiphon-tls"
+	tls "github.com/toidicakhia/psiphon-tls"
 
-	mocklogging "github.com/Psiphon-Labs/quic-go/internal/mocks/logging"
-	"github.com/Psiphon-Labs/quic-go/internal/protocol"
-	"github.com/Psiphon-Labs/quic-go/internal/wire"
-	"github.com/Psiphon-Labs/quic-go/logging"
+	mocklogging "github.com/toidicakhia/psiphon-quic-go/internal/mocks/logging"
+	"github.com/toidicakhia/psiphon-quic-go/internal/protocol"
+	"github.com/toidicakhia/psiphon-quic-go/internal/wire"
+	"github.com/toidicakhia/psiphon-quic-go/logging"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

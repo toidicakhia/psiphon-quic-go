@@ -10,12 +10,12 @@ import (
 	"os"
 	"sync"
 
-	tls "github.com/Psiphon-Labs/psiphon-tls"
+	tls "github.com/toidicakhia/psiphon-tls"
 
-	"github.com/Psiphon-Labs/quic-go"
-	"github.com/Psiphon-Labs/quic-go/http3"
-	"github.com/Psiphon-Labs/quic-go/internal/testdata"
-	"github.com/Psiphon-Labs/quic-go/qlog"
+	quic "github.com/toidicakhia/psiphon-quic-go"
+	"github.com/toidicakhia/psiphon-quic-go/http3"
+	"github.com/toidicakhia/psiphon-quic-go/internal/testdata"
+	"github.com/toidicakhia/psiphon-quic-go/qlog"
 )
 
 func main() {

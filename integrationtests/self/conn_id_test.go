@@ -8,8 +8,8 @@ import (
 	mrand "math/rand"
 	"net"
 
-	"github.com/Psiphon-Labs/quic-go"
-	"github.com/Psiphon-Labs/quic-go/internal/protocol"
+	"github.com/toidicakhia/psiphon-quic-go"
+	"github.com/toidicakhia/psiphon-quic-go/internal/protocol"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

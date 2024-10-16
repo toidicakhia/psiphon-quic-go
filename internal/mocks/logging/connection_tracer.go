@@ -6,8 +6,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/Psiphon-Labs/quic-go/internal/mocks/logging/internal"
-	"github.com/Psiphon-Labs/quic-go/logging"
+	"github.com/toidicakhia/psiphon-quic-go/internal/mocks/logging/internal"
+	"github.com/toidicakhia/psiphon-quic-go/logging"
 
 	"go.uber.org/mock/gomock"
 )

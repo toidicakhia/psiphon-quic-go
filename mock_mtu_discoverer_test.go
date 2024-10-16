@@ -12,8 +12,8 @@ import (
 	reflect "reflect"
 	time "time"
 
-	ackhandler "github.com/Psiphon-Labs/quic-go/internal/ackhandler"
-	protocol "github.com/Psiphon-Labs/quic-go/internal/protocol"
+	ackhandler "github.com/toidicakhia/psiphon-quic-go/internal/ackhandler"
+	protocol "github.com/toidicakhia/psiphon-quic-go/internal/protocol"
 	gomock "go.uber.org/mock/gomock"
 )
 

@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	mockquic "github.com/Psiphon-Labs/quic-go/internal/mocks/quic"
-	"github.com/Psiphon-Labs/quic-go/internal/utils"
+	mockquic "github.com/toidicakhia/psiphon-quic-go/internal/mocks/quic"
+	"github.com/toidicakhia/psiphon-quic-go/internal/utils"
 
 	"github.com/quic-go/qpack"
 

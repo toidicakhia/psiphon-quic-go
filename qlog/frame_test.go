@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/Psiphon-Labs/quic-go/internal/protocol"
-	"github.com/Psiphon-Labs/quic-go/internal/qerr"
-	"github.com/Psiphon-Labs/quic-go/logging"
+	"github.com/toidicakhia/psiphon-quic-go/internal/protocol"
+	"github.com/toidicakhia/psiphon-quic-go/internal/qerr"
+	"github.com/toidicakhia/psiphon-quic-go/logging"
 
 	"github.com/francoispqt/gojay"
 	. "github.com/onsi/ginkgo/v2"

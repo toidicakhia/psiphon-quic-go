@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"io"
 
-	"github.com/Psiphon-Labs/quic-go"
-	mockquic "github.com/Psiphon-Labs/quic-go/internal/mocks/quic"
+	"github.com/toidicakhia/psiphon-quic-go"
+	mockquic "github.com/toidicakhia/psiphon-quic-go/internal/mocks/quic"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

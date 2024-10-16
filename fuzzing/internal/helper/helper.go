@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"time"
 
-	tls "github.com/Psiphon-Labs/psiphon-tls"
+	tls "github.com/toidicakhia/psiphon-tls"
 )
 
 // NthBit gets the n-th bit of a byte (counting starts at 0).

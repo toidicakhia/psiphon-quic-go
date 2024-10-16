@@ -6,9 +6,9 @@ import (
 	"net"
 	"time"
 
-	tls "github.com/Psiphon-Labs/psiphon-tls"
+	tls "github.com/toidicakhia/psiphon-tls"
 
-	"github.com/Psiphon-Labs/quic-go"
+	quic "github.com/toidicakhia/psiphon-quic-go"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

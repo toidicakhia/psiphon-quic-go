@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"os"
 
-	tls "github.com/Psiphon-Labs/psiphon-tls"
+	tls "github.com/toidicakhia/psiphon-tls"
 
-	"github.com/Psiphon-Labs/quic-go"
-	"github.com/Psiphon-Labs/quic-go/http3"
-	"github.com/Psiphon-Labs/quic-go/internal/qtls"
-	"github.com/Psiphon-Labs/quic-go/interop/http09"
-	"github.com/Psiphon-Labs/quic-go/interop/utils"
+	quic "github.com/toidicakhia/psiphon-quic-go"
+	"github.com/toidicakhia/psiphon-quic-go/http3"
+	"github.com/toidicakhia/psiphon-quic-go/internal/qtls"
+	"github.com/toidicakhia/psiphon-quic-go/interop/http09"
+	"github.com/toidicakhia/psiphon-quic-go/interop/utils"
 )
 
 var tlsConf *tls.Config

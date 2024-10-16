@@ -10,16 +10,16 @@ import (
 	"sync/atomic"
 	"time"
 
-	tls "github.com/Psiphon-Labs/psiphon-tls"
-	"github.com/Psiphon-Labs/psiphon-tunnel-core/psiphon/common/prng"
+	tls "github.com/toidicakhia/psiphon-tls"
+	"github.com/toidicakhia/psiphon-tunnel/psiphon/common/prng"
 
-	"github.com/Psiphon-Labs/quic-go/internal/protocol"
-	"github.com/Psiphon-Labs/quic-go/internal/qerr"
-	"github.com/Psiphon-Labs/quic-go/internal/qtls"
-	"github.com/Psiphon-Labs/quic-go/internal/utils"
-	"github.com/Psiphon-Labs/quic-go/internal/wire"
-	"github.com/Psiphon-Labs/quic-go/logging"
-	"github.com/Psiphon-Labs/quic-go/quicvarint"
+	"github.com/toidicakhia/psiphon-quic-go/internal/protocol"
+	"github.com/toidicakhia/psiphon-quic-go/internal/qerr"
+	"github.com/toidicakhia/psiphon-quic-go/internal/qtls"
+	"github.com/toidicakhia/psiphon-quic-go/internal/utils"
+	"github.com/toidicakhia/psiphon-quic-go/internal/wire"
+	"github.com/toidicakhia/psiphon-quic-go/logging"
+	"github.com/toidicakhia/psiphon-quic-go/quicvarint"
 )
 
 type quicVersionContextKey struct{}
@@ -680,7 +680,6 @@ func (h *cryptoSetup) ConnectionState() ConnectionState {
 func (h *cryptoSetup) TLSConnectionMetrics() tls.ConnectionMetrics {
 	return h.conn.TLSConnectionMetrics()
 }
-
 
 func wrapError(err error) error {
 	// alert 80 is an internal error

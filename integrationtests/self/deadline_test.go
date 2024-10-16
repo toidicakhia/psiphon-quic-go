@@ -7,7 +7,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/Psiphon-Labs/quic-go"
+	"github.com/toidicakhia/psiphon-quic-go"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

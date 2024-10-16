@@ -13,10 +13,10 @@ import (
 	reflect "reflect"
 	time "time"
 
-	protocol "github.com/Psiphon-Labs/quic-go/internal/protocol"
-	utils "github.com/Psiphon-Labs/quic-go/internal/utils"
-	wire "github.com/Psiphon-Labs/quic-go/internal/wire"
-	logging "github.com/Psiphon-Labs/quic-go/logging"
+	protocol "github.com/toidicakhia/psiphon-quic-go/internal/protocol"
+	utils "github.com/toidicakhia/psiphon-quic-go/internal/utils"
+	wire "github.com/toidicakhia/psiphon-quic-go/internal/wire"
+	logging "github.com/toidicakhia/psiphon-quic-go/logging"
 	gomock "go.uber.org/mock/gomock"
 )
 

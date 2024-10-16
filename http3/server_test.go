@@ -12,14 +12,14 @@ import (
 	"sync/atomic"
 	"time"
 
-	tls "github.com/Psiphon-Labs/psiphon-tls"
+	tls "github.com/toidicakhia/psiphon-tls"
 
-	"github.com/Psiphon-Labs/quic-go"
-	mockquic "github.com/Psiphon-Labs/quic-go/internal/mocks/quic"
-	"github.com/Psiphon-Labs/quic-go/internal/protocol"
-	"github.com/Psiphon-Labs/quic-go/internal/testdata"
-	"github.com/Psiphon-Labs/quic-go/internal/utils"
-	"github.com/Psiphon-Labs/quic-go/quicvarint"
+	quic "github.com/toidicakhia/psiphon-quic-go"
+	mockquic "github.com/toidicakhia/psiphon-quic-go/internal/mocks/quic"
+	"github.com/toidicakhia/psiphon-quic-go/internal/protocol"
+	"github.com/toidicakhia/psiphon-quic-go/internal/testdata"
+	"github.com/toidicakhia/psiphon-quic-go/internal/utils"
+	"github.com/toidicakhia/psiphon-quic-go/quicvarint"
 
 	"github.com/quic-go/qpack"
 	"go.uber.org/mock/gomock"

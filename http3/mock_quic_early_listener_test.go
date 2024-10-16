@@ -13,7 +13,7 @@ import (
 	net "net"
 	reflect "reflect"
 
-	quic "github.com/Psiphon-Labs/quic-go"
+	quic "github.com/toidicakhia/psiphon-quic-go"
 	gomock "go.uber.org/mock/gomock"
 )
 

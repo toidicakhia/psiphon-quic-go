@@ -11,9 +11,9 @@ import (
 	"log"
 	"math/big"
 
-	tls "github.com/Psiphon-Labs/psiphon-tls"
+	tls "github.com/toidicakhia/psiphon-tls"
 
-	"github.com/Psiphon-Labs/quic-go"
+	quic "github.com/toidicakhia/psiphon-quic-go"
 )
 
 const addr = "localhost:4242"

@@ -9,7 +9,7 @@
 package mocktls
 
 import (
-	tls "github.com/Psiphon-Labs/psiphon-tls"
+	tls "github.com/toidicakhia/psiphon-tls"
 	reflect "reflect"
 
 	gomock "go.uber.org/mock/gomock"

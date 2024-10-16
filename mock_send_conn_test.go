@@ -12,7 +12,7 @@ import (
 	net "net"
 	reflect "reflect"
 
-	protocol "github.com/Psiphon-Labs/quic-go/internal/protocol"
+	protocol "github.com/toidicakhia/psiphon-quic-go/internal/protocol"
 	gomock "go.uber.org/mock/gomock"
 )
 

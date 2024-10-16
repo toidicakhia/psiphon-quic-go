@@ -4,15 +4,15 @@ import (
 	"log"
 	"net"
 
-	tls "github.com/Psiphon-Labs/psiphon-tls"
+	tls "github.com/toidicakhia/psiphon-tls"
 
-	fuzzhandshake "github.com/Psiphon-Labs/quic-go/fuzzing/handshake"
-	"github.com/Psiphon-Labs/quic-go/fuzzing/internal/helper"
-	"github.com/Psiphon-Labs/quic-go/internal/handshake"
-	"github.com/Psiphon-Labs/quic-go/internal/protocol"
-	"github.com/Psiphon-Labs/quic-go/internal/testdata"
-	"github.com/Psiphon-Labs/quic-go/internal/utils"
-	"github.com/Psiphon-Labs/quic-go/internal/wire"
+	fuzzhandshake "github.com/toidicakhia/psiphon-quic-go/fuzzing/handshake"
+	"github.com/toidicakhia/psiphon-quic-go/fuzzing/internal/helper"
+	"github.com/toidicakhia/psiphon-quic-go/internal/handshake"
+	"github.com/toidicakhia/psiphon-quic-go/internal/protocol"
+	"github.com/toidicakhia/psiphon-quic-go/internal/testdata"
+	"github.com/toidicakhia/psiphon-quic-go/internal/utils"
+	"github.com/toidicakhia/psiphon-quic-go/internal/wire"
 )
 
 const alpn = "fuzz"

@@ -11,7 +11,7 @@ package quic
 import (
 	reflect "reflect"
 
-	handshake "github.com/Psiphon-Labs/quic-go/internal/handshake"
+	handshake "github.com/toidicakhia/psiphon-quic-go/internal/handshake"
 	gomock "go.uber.org/mock/gomock"
 )
 

@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Psiphon-Labs/quic-go/fuzzing/internal/helper"
-	"github.com/Psiphon-Labs/quic-go/internal/protocol"
-	"github.com/Psiphon-Labs/quic-go/internal/wire"
+	"github.com/toidicakhia/psiphon-quic-go/fuzzing/internal/helper"
+	"github.com/toidicakhia/psiphon-quic-go/internal/protocol"
+	"github.com/toidicakhia/psiphon-quic-go/internal/wire"
 )
 
 // PrefixLen is the number of bytes used for configuration

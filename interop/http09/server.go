@@ -12,8 +12,8 @@ import (
 	"strings"
 	"sync"
 
-	tls "github.com/Psiphon-Labs/psiphon-tls"
-	"github.com/Psiphon-Labs/quic-go"
+	quic "github.com/toidicakhia/psiphon-quic-go"
+	tls "github.com/toidicakhia/psiphon-tls"
 )
 
 const h09alpn = "hq-interop"

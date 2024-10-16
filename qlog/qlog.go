@@ -10,10 +10,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Psiphon-Labs/quic-go/internal/protocol"
-	"github.com/Psiphon-Labs/quic-go/internal/utils"
-	"github.com/Psiphon-Labs/quic-go/internal/wire"
-	"github.com/Psiphon-Labs/quic-go/logging"
+	"github.com/toidicakhia/psiphon-quic-go/internal/protocol"
+	"github.com/toidicakhia/psiphon-quic-go/internal/utils"
+	"github.com/toidicakhia/psiphon-quic-go/internal/wire"
+	"github.com/toidicakhia/psiphon-quic-go/logging"
 
 	"github.com/francoispqt/gojay"
 )
@@ -32,7 +32,7 @@ func init() {
 		return
 	}
 	for _, d := range info.Deps {
-		if d.Path == "github.com/Psiphon-Labs/quic-go" {
+		if d.Path == "github.com/toidicakhia/psiphon-quic-go" {
 			quicGoVersion = d.Version
 			if d.Replace != nil {
 				if len(d.Replace.Version) > 0 {
